@@ -1,6 +1,6 @@
 import unittest
 from textnode import TextNode, TextType
-from markdown_parser import split_nodes_delimiter
+from markdown_parser import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
 
 class TestMarkdownParser(unittest.TestCase):
     def test_split_nodes_code(self):
@@ -59,6 +59,24 @@ class TestMarkdownParser(unittest.TestCase):
                 TextNode(" word", TextType.NORMAL),
             ]
         )
+
+    def test_extract_links(self):
+        input = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        output = [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
+        self.assertEqual(extract_markdown_links(input), output)
+
+    def test_extract_images(self):
+        input = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        output = [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")]
+        self.assertEqual(extract_markdown_images(input), output)
+    
+    def test_extract_links_empty(self):
+        self.assertEqual(extract_markdown_links(""), [])
+    
+    def test_extract_links_no_link(self):
+        input = "Text without [link]"
+        self.assertEqual(extract_markdown_links(input), [])
+
 
 if __name__ == "__main__":
     unittest.main()
