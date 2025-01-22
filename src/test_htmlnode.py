@@ -1,6 +1,7 @@
 import unittest
 from htmlnode import HTMLNode, LeafNode, ParentNode
 
+
 class TestHTMLNode(unittest.TestCase):
     def test_props_to_html(self):
         node = HTMLNode("tag", "value", None, {"id": "link", "id2": "link2"})
