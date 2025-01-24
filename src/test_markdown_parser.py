@@ -1,6 +1,12 @@
 import unittest
 from textnode import TextNode, TextType
-from markdown_parser import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from markdown_parser import (
+    split_nodes_delimiter,
+    extract_markdown_images,
+    extract_markdown_links,
+    split_nodes_image,
+    split_nodes_link,
+)
 
 class TestMarkdownParser(unittest.TestCase):
     def test_split_nodes_code(self):
@@ -77,6 +83,43 @@ class TestMarkdownParser(unittest.TestCase):
         input = "Text without [link]"
         self.assertEqual(extract_markdown_links(input), [])
 
+    def test_split_nodes_link(self):
+        node = TextNode(
+            "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+            TextType.NORMAL,
+        )
+        result = [
+            TextNode("This is text with a link ", TextType.NORMAL),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" and ", TextType.NORMAL),
+            TextNode(
+                "to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+        self.assertEqual(split_nodes_link([node]), result)
+
+    def test_split_nodes_image(self):
+        node = TextNode(
+            "This is text with a link ![image](https://www.image.dev) and ![image2](https://www.image2.dev)",
+            TextType.NORMAL,
+        )
+        result = [
+            TextNode("This is text with a link ", TextType.NORMAL),
+            TextNode("image", TextType.IMAGE, "https://www.image.dev"),
+            TextNode(" and ", TextType.NORMAL),
+            TextNode(
+                "image2", TextType.IMAGE, "https://www.image2.dev"
+            ),
+        ]
+        self.assertEqual(split_nodes_image([node]), result)
+
+    def test_split_nodes_single_image(self):
+        node = TextNode("![image](https://image.com)", TextType.NORMAL)
+        result = [
+            TextNode("image", TextType.IMAGE, "https://image.com")
+        ]
+        self.assertListEqual(split_nodes_image([node]), result)
+        
 
 if __name__ == "__main__":
     unittest.main()
