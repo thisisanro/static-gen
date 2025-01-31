@@ -2,6 +2,7 @@ import unittest
 from markdown_blocks import (
     markdown_to_blocks,
     block_to_block_type,
+    markdown_to_html_node,
 )
 
 
@@ -28,7 +29,7 @@ class TestMarkdownBlocks(unittest.TestCase):
         self.assertEqual(block_to_block_type(text), "heading")
 
     def test_block_to_block_type_code(self):
-        text = "```This is a code text```"
+        text = "```\nThis is a code text\n```"
         self.assertEqual(block_to_block_type(text), "code")
 
     def test_block_to_block_type_quote(self):
@@ -61,6 +62,59 @@ class TestMarkdownBlocks(unittest.TestCase):
             "and the second line of it"
         )
         self.assertEqual(block_to_block_type(text), "paragraph")
+
+    def test_markdown_to_html_paragraph(self):
+        markdown = "This is a paragraph with **bold** text."
+        html_node = markdown_to_html_node(markdown)
+        self.assertEqual(
+            "<div><p>This is a paragraph with <b>bold</b> text.</p></div>",
+            html_node.to_html()
+        )
+    def test_markdown_to_html_heading(self):
+        markdown = "## Heading"
+        html_node = markdown_to_html_node(markdown)
+        self.assertEqual(
+            "<div><h2>Heading</h2></div>",
+            html_node.to_html()
+        )
+
+    def test_markdown_to_html_unordered_list(self):
+        markdown = "* Item 1\n* Item 2"
+        html_node = markdown_to_html_node(markdown)
+        self.assertEqual(
+            "<div><ul><li>Item 1</li><li>Item 2</li></ul></div>",
+            html_node.to_html()
+        )
+
+    def test_markdown_to_html_ordered_list(self):
+        markdown = "1. First\n2. Second"
+        html_node = markdown_to_html_node(markdown)
+        self.assertEqual(
+            "<div><ol><li>First</li><li>Second</li></ol></div>",
+            html_node.to_html()
+        )
+
+    def test_markdown_to_html_code(self):
+        markdown = "```\ndef test():\n    pass\n```"
+        html_node = markdown_to_html_node(markdown)
+        self.assertEqual(
+            "<div><pre><code>def test():\n    pass</code></pre></div>",
+            html_node.to_html()
+        )
+
+    def test_markdown_to_html_quote(self):
+        markdown = """
+> This is a
+> blockquote block
+
+this is paragraph text
+
+""" 
+        html_node = markdown_to_html_node(markdown)
+        self.assertEqual(
+            "<div><blockquote>This is a blockquote block</blockquote><p>this is paragraph text</p></div>",
+            html_node.to_html()
+        )
 
 
 if __name__ == "__main__":
